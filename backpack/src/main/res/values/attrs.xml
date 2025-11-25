@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BackupView">
+        <!-- Text Attributes -->
+        <attr name="signInTitle" format="string" />
+        <attr name="signInDescription" format="string" />
+        <attr name="signInButtonText" format="string" />
+        <attr name="linkedAccountPrefix" format="string" />
+        <attr name="lastBackupPrefix" format="string" />
+        <attr name="autoBackupLabel" format="string" />
+        <attr name="unlinkAccountText" format="string" />
+        <attr name="exportTitle" format="string" />
+        <attr name="exportDescription" format="string" />
+        <attr name="exportButtonText" format="string" />
+        <attr name="importTitle" format="string" />
+        <attr name="importDescription" format="string" />
+        <attr name="importButtonText" format="string" />
+        <attr name="warningText" format="string" />
+
+        <!-- Visibility Attributes -->
+        <attr name="showSignInCard" format="boolean" />
+        <attr name="showAuthenticatedCard" format="boolean" />
+        <attr name="showActionsCard" format="boolean" />
+        <attr name="showAutoBackupToggle" format="boolean" />
+        <attr name="showUnlinkAccount" format="boolean" />
+        <attr name="showExportImport" format="boolean" />
+        <attr name="showWarning" format="boolean" />
+
+        <!-- State Attributes -->
+        <attr name="autoBackupEnabled" format="boolean" />
+        <attr name="linkedEmail" format="string" />
+        <attr name="lastBackupTime" format="string" />
+
+        <!-- Style Attributes -->
+        <attr name="cardCornerRadius" format="dimension" />
+        <attr name="cardElevation" format="dimension" />
+        <attr name="iconTint" format="color" />
+        <attr name="primaryButtonColor" format="color" />
+    </declare-styleable>
+</resources>
