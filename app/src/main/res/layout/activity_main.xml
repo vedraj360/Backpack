@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/divider">
+    android:background="@color/bp_divider"
+    android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -13,10 +12,10 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        app:title="Backup &amp; Restore"
-        app:titleTextColor="?attr/colorOnPrimary"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:navigationIconTint="?attr/colorOnPrimary" />
+        app:navigationIconTint="?attr/colorOnPrimary"
+        app:title="Backup &amp; Restore"
+        app:titleTextColor="?attr/colorOnPrimary" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -33,12 +32,12 @@
                 android:id="@+id/backupView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:signInTitle="Cloud Backup"
-                app:signInDescription="Sign in with Google to secure your data."
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
                 app:showAutoBackupToggle="true"
                 app:showExportImport="true"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp" />
+                app:signInDescription="Sign in with Google to secure your data."
+                app:signInTitle="Cloud Backup" />
 
         </LinearLayout>
 

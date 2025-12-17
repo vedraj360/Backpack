@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bp_background">#000000</color>
+    <color name="bp_card_background">#2C2C2E</color>
+    <color name="bp_text_primary">#E0E0E0</color>
+    <color name="bp_text_secondary">#9E9E9E</color>
+    <color name="bp_divider">#2D3139</color>
+    <color name="bp_icon_background">#2D3139</color>
+
+    <!-- Brand Colors (Same for both themes) -->
+    <color name="bp_primary_teal">#00D9C0</color>
+    <color name="bp_primary_cyan">#00E5CC</color>
+    <color name="bp_google_blue">#4285F4</color>
+    <color name="bp_error_red">#FF6B6B</color>
+    <color name="bp_warning_yellow">#FFA726</color>
+    <color name="bp_warning_background">#2A2516</color>
+
+    <!-- Switch Colors Dark -->
+    <color name="bp_switch_thumb_checked">#00D9C0</color>
+    <color name="bp_switch_thumb_unchecked">#6B7280</color>
+    <color name="bp_switch_track_checked">#1A4D47</color>
+    <color name="bp_switch_track_unchecked">#2D3139</color>
+
+    <!-- Button Colors Dark -->
+    <color name="bp_button_text">#FFFFFF</color>
+    <color name="bp_outlined_button_stroke">#00E5CC</color>
+</resources>

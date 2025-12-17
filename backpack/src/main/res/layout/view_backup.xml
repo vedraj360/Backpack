@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        app:cardBackgroundColor="@color/card_background"
+        app:cardBackgroundColor="@color/bp_card_background"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
         app:strokeWidth="0dp">
@@ -43,7 +43,7 @@
                         android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_cloud"
-                        app:tint="@color/primary_teal" />
+                        app:tint="@color/bp_primary_teal" />
                 </FrameLayout>
 
                 <!-- Title + Description -->
@@ -59,7 +59,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Link your Google Drive"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/bp_text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -69,7 +69,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Keep your data safe with automatic daily backups."
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/bp_text_secondary"
                         android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -77,7 +77,7 @@
             <!-- Sign In Button -->
             <Button
                 android:id="@+id/btnSignIn"
-                style="@style/BackpackButton.Primary"
+                style="@style/Widget.Backpack.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:text="Sign in with Google"
@@ -95,7 +95,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:visibility="gone"
-        app:cardBackgroundColor="@color/card_background"
+        app:cardBackgroundColor="@color/bp_card_background"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
         app:strokeWidth="0dp">
@@ -126,7 +126,7 @@
                         android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_cloud"
-                        app:tint="@color/primary_teal" />
+                        app:tint="@color/bp_primary_teal" />
                 </FrameLayout>
 
                 <!-- Account Info -->
@@ -142,7 +142,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Linked to: user@gmail.com"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/bp_text_primary"
                         android:textSize="15sp" />
 
                     <TextView
@@ -151,7 +151,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Last backup: Today at 2:03 AM"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/bp_text_secondary"
                         android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -161,7 +161,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginBottom="16dp"
-                android:background="@color/divider" />
+                android:background="@color/bp_divider" />
 
             <!-- Auto Backup Toggle -->
             <LinearLayout
@@ -182,7 +182,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Automatic daily backup"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/bp_text_primary"
                         android:textSize="15sp" />
 
                     <TextView
@@ -191,7 +191,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Last backup: Today at 2:03 AM"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/bp_text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -212,7 +212,7 @@
                 android:background="?attr/selectableItemBackground"
                 android:padding="8dp"
                 android:text="Unlink Account"
-                android:textColor="@color/error_red"
+                android:textColor="@color/bp_error_red"
                 android:textSize="14sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -223,7 +223,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:cardBackgroundColor="@color/card_background"
+        app:cardBackgroundColor="@color/bp_card_background"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
         app:strokeWidth="0dp">
@@ -243,7 +243,7 @@
                 android:layout_marginTop="16dp"
                 android:max="100"
                 android:progress="0"
-                android:progressTint="@color/primary_teal"
+                android:progressTint="@color/bp_primary_teal"
                 android:visibility="gone" />
 
             <TextView
@@ -253,7 +253,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="8dp"
                 android:text="Backing up..."
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/bp_text_secondary"
                 android:textSize="13sp"
                 android:visibility="gone" />
 
@@ -274,7 +274,7 @@
                     android:layout_height="20dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_warning"
-                    app:tint="@color/warning_yellow" />
+                    app:tint="@color/bp_warning_yellow" />
 
                 <TextView
                     android:id="@+id/tvWarningTitle"
@@ -282,7 +282,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Warning"
-                    android:textColor="@color/warning_yellow"
+                    android:textColor="@color/bp_warning_yellow"
                     android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -293,7 +293,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Importing a backup file will overwrite and replace all data currently held. This action cannot be undone."
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/bp_text_secondary"
                 android:textSize="12sp" />
 
             <!-- Export Backup -->
@@ -317,7 +317,7 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_export"
-                        app:tint="@color/primary_cyan" />
+                        app:tint="@color/bp_primary_cyan" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -332,7 +332,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Export Backup"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/bp_text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -342,14 +342,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Save a complete backup of all your data as a backup file."
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/bp_text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <Button
                 android:id="@+id/btnExport"
-                style="@style/BackpackButton.Outlined"
+                style="@style/Widget.Backpack.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="8dp"
@@ -361,7 +361,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="16dp"
-                android:background="@color/divider" />
+                android:background="@color/bp_divider" />
 
             <!-- Import Backup -->
             <LinearLayout
@@ -384,7 +384,7 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_import"
-                        app:tint="@color/primary_cyan" />
+                        app:tint="@color/bp_primary_cyan" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -399,7 +399,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Import Backup"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/bp_text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
@@ -409,14 +409,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Restore your data from an existing backup file. This will overwrite all current data."
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/bp_text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <Button
                 android:id="@+id/btnImport"
-                style="@style/BackpackButton.Outlined"
+                style="@style/Widget.Backpack.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="8dp"

@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Light Theme Colors -->
-    <color name="background">#F5F5F5</color>
-    <color name="card_background">#FFFFFF</color>
-    <color name="text_primary">#1F1F1F</color>
-    <color name="text_secondary">#6B7280</color>
-    <color name="divider">#E5E7EB</color>
-    <color name="icon_background">#F3F4F6</color>
+    <color name="bp_background">#F5F5F5</color>
+    <color name="bp_card_background">#FFFFFF</color>
+    <color name="bp_text_primary">#1F1F1F</color>
+    <color name="bp_text_secondary">#6B7280</color>
+    <color name="bp_divider">#E5E7EB</color>
+    <color name="bp_icon_background">#F3F4F6</color>
 
     <!-- Brand Colors (Same for both themes) -->
-    <color name="primary_teal">#00D9C0</color>
-    <color name="primary_cyan">#EF5350</color>
-    <color name="google_blue">#4285F4</color>
-    <color name="error_red">#EF4444</color>
-    <color name="warning_yellow">#F59E0B</color>
-    <color name="warning_background">#FEF3C7</color>
+    <color name="bp_primary_teal">#00D9C0</color>
+    <color name="bp_primary_cyan">#EF5350</color>
+    <color name="bp_google_blue">#4285F4</color>
+    <color name="bp_error_red">#EF4444</color>
+    <color name="bp_warning_yellow">#F59E0B</color>
+    <color name="bp_warning_background">#FEF3C7</color>
 
     <!-- Switch Colors Light -->
-    <color name="switch_thumb_checked">#00D9C0</color>
-    <color name="switch_thumb_unchecked">#9CA3AF</color>
-    <color name="switch_track_checked">#B3F5EC</color>
-    <color name="switch_track_unchecked">#E5E7EB</color>
+    <color name="bp_switch_thumb_checked">#00D9C0</color>
+    <color name="bp_switch_thumb_unchecked">#9CA3AF</color>
+    <color name="bp_switch_track_checked">#B3F5EC</color>
+    <color name="bp_switch_track_unchecked">#E5E7EB</color>
 
     <!-- Button Colors Light -->
-    <color name="button_text">#FFFFFF</color>
-    <color name="outlined_button_stroke">#00E5CC</color>
+    <color name="bp_button_text">#FFFFFF</color>
+    <color name="bp_outlined_button_stroke">#00E5CC</color>
 </resources>
