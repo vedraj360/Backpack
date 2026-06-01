@@ -50,7 +50,7 @@ dependencyResolutionManagement {
 
 ``` kotlin
 dependencies {
-    implementation("com.github.vedraj360:Backpack:1.0.1")
+    implementation("com.github.vedraj360:Backpack:1.0.3")
 }
 ```
 
