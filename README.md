@@ -26,6 +26,11 @@ authentication, and offers a plug-and-play UI.
     Includes a `BackupView` for instant onboarding and authentication
     handling.
 
+## Used By
+
+Backpack is used in production by:
+- **AutoSend** - [Get it on Google Play](https://play.google.com/store/apps/details?id=com.vdx.autosend)
+
 ## Installation
 
 ### 1. Add JitPack
