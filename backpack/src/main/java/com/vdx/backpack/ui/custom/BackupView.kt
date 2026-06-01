@@ -49,11 +49,11 @@ class BackupView @JvmOverloads constructor(
                         binding.btnSignIn.text = it
                     }
                     getString(R.styleable.BackupView_linkedEmail)?.let {
-                        binding.tvLinkedEmail.text = "Linked to: $it"
+                        binding.tvLinkedEmail.text = context.getString(R.string.bp_linked_to, it)
                     }
                     getString(R.styleable.BackupView_lastBackupTime)?.let {
-                        binding.tvLastBackup.text = "Last backup: $it"
-                        binding.tvAutoBackupTime.text = "Last backup: $it"
+                        binding.tvLastBackup.text = context.getString(R.string.bp_last_backup, it)
+                        binding.tvAutoBackupTime.text = context.getString(R.string.bp_last_backup, it)
                     }
                     getString(R.styleable.BackupView_autoBackupLabel)?.let {
                         binding.tvAutoBackupLabel.text = it
@@ -199,21 +199,21 @@ class BackupView @JvmOverloads constructor(
         binding.cardAuthenticated.isVisible = true
         binding.cardActions.isVisible = true
 
-        email?.let { binding.tvLinkedEmail.text = "Linked to:\n$it" }
+        email?.let { binding.tvLinkedEmail.text = context.getString(R.string.bp_linked_to_newline, it) }
         lastBackupTime?.let {
-            binding.tvLastBackup.text = "Last backup: $it"
-            binding.tvAutoBackupTime.text = "Last backup: $it"
+            binding.tvLastBackup.text = context.getString(R.string.bp_last_backup, it)
+            binding.tvAutoBackupTime.text = context.getString(R.string.bp_last_backup, it)
         } ?: run {
-            binding.tvLastBackup.text = "Last backup: Never"
-            binding.tvAutoBackupTime.text = "Last backup: Never"
+            binding.tvLastBackup.text = context.getString(R.string.bp_last_backup_never)
+            binding.tvAutoBackupTime.text = context.getString(R.string.bp_last_backup_never)
         }
     }
 
-    fun showProgress(progress: Int, message: String = "Backing up...") {
+    fun showProgress(progress: Int, message: String? = null) {
         binding.progressBar.isVisible = true
         binding.progressBar.progress = progress
         binding.tvProgress.isVisible = true
-        binding.tvProgress.text = message
+        binding.tvProgress.text = message ?: context.getString(R.string.bp_backing_up)
         setButtonsEnabled(false)
     }
 
@@ -236,12 +236,12 @@ class BackupView @JvmOverloads constructor(
     fun updateLastBackupTime(timestamp: Long) {
         val sdf = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
         val formattedTime = sdf.format(Date(timestamp))
-        binding.tvLastBackup.text = "Last backup: $formattedTime"
-        binding.tvAutoBackupTime.text = "Last backup: $formattedTime"
+        binding.tvLastBackup.text = context.getString(R.string.bp_last_backup, formattedTime)
+        binding.tvAutoBackupTime.text = context.getString(R.string.bp_last_backup, formattedTime)
     }
 
     fun setLinkedEmail(email: String) {
-        binding.tvLinkedEmail.text = "Linked to: $email"
+        binding.tvLinkedEmail.text = context.getString(R.string.bp_linked_to, email)
     }
 
     fun setLastBackupText(text: String) {
