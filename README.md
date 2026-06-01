@@ -137,6 +137,14 @@ Drive access.
 
 Setup guide: [Google Cloud Setup Guide](https://vedraj360.medium.com/integrating-google-drive-for-android-cloud-backups-a-complete-setup-guide-6cd8611f1905)
 
+### Troubleshooting Common Auth Errors
+
+*   **Google Sign-In Developer Error (Status Code 10):**
+    This usually indicates a mismatch between the SHA-1 fingerprint of the signing certificate used to build your APK/Bundle and the SHA-1 registered in the Google Cloud Console.
+    *   Make sure you have added both your **Debug SHA-1** (generated locally) and your **Release SHA-1** (from Google Play Console if using Play App Signing, or your release keystore) to your Google Cloud OAuth Client ID configuration.
+    *   Ensure the package name matches exactly.
+
+
 ## License
 
 Copyright 2025 Vedraj
