@@ -3,14 +3,17 @@ package com.vdx.backpack.demo.backup
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vdx.backpack.Backpack
 import com.vdx.backpack.core.BackpackManager
 import com.vdx.backpack.core.BackupResult
 import com.vdx.backpack.demo.utils.AppRestartHelper
 import com.vdx.backpack.storage.BackupPreferences
 import com.vdx.backpack.storage.GoogleDriveProvider
 import com.vdx.backpack.util.DateTimeUtils
+import com.vdx.backpack.vault.model.LocalBackupResult
 import com.vdx.backpack.worker.BackupScheduler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +34,13 @@ data class BackupUiState(
     val progress: Int = 0,
     val progressMessage: String = "",
     val error: String? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+
+    // Local Backup
+    val lastLocalBackupTimestamp: Long = 0L,
+    val isLocalLoading: Boolean = false,
+    val localProgress: Int = 0,
+    val localProgressMessage: String = ""
 )
 
 
@@ -280,6 +289,92 @@ class BackupViewModel(
                         isLoading = false,
                         error = "Restore failed: ${result.error.localizedMessage}"
                     )
+                }
+            }
+        }
+    }
+
+    // ============================================================================================
+    // Local Backup & Restore
+    // ============================================================================================
+
+    fun exportLocalBackup(uri: android.net.Uri) {
+        viewModelScope.launch {
+            com.vdx.backpack.Backpack.local.export(uri).collect { result ->
+                when (result) {
+                    is com.vdx.backpack.vault.model.LocalBackupResult.InProgress -> {
+                        _uiState.update {
+                            it.copy(
+                                isLocalLoading = true,
+                                localProgress = result.progress,
+                                localProgressMessage = result.message
+                            )
+                        }
+                    }
+                    is com.vdx.backpack.vault.model.LocalBackupResult.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                isLocalLoading = false,
+                                localProgress = 100,
+                                lastLocalBackupTimestamp = result.timestamp,
+                                successMessage = "Local backup exported successfully!"
+                            )
+                        }
+                    }
+                    is com.vdx.backpack.vault.model.LocalBackupResult.Failure -> {
+                        _uiState.update {
+                            it.copy(
+                                isLocalLoading = false,
+                                error = "Export failed: ${result.error.localizedMessage}"
+                            )
+                        }
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    fun importLocalBackup(context: Context, uri: android.net.Uri) {
+        viewModelScope.launch {
+            com.vdx.backpack.Backpack.local.import(uri).collect { result ->
+                when (result) {
+                    is com.vdx.backpack.vault.model.LocalBackupResult.InProgress -> {
+                        _uiState.update {
+                            it.copy(
+                                isLocalLoading = true,
+                                localProgress = result.progress,
+                                localProgressMessage = result.message
+                            )
+                        }
+                    }
+                    is com.vdx.backpack.vault.model.LocalBackupResult.ConflictDetected -> {
+                        _uiState.update {
+                            it.copy(
+                                isLocalLoading = false,
+                                error = "Conflict: ${result.conflictingFiles.size} attachments exist."
+                            )
+                        }
+                    }
+                    is com.vdx.backpack.vault.model.LocalBackupResult.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                isLocalLoading = false,
+                                localProgress = 100,
+                                successMessage = "Local backup restored! Restarting app..."
+                            )
+                        }
+                        delay(1500)
+                        AppRestartHelper.triggerRestart(context)
+                    }
+                    is com.vdx.backpack.vault.model.LocalBackupResult.Failure -> {
+                        _uiState.update {
+                            it.copy(
+                                isLocalLoading = false,
+                                error = "Import failed: ${result.error.localizedMessage}"
+                            )
+                        }
+                    }
                 }
             }
         }

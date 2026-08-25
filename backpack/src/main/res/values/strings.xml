@@ -42,4 +42,16 @@
     <string name="bp_import_title">Import Backup</string>
     <string name="bp_import_desc">Restore your data from an existing backup file. This will overwrite all current data.</string>
     <string name="bp_import_btn">Import Data…</string>
+
+    <!-- Backpack Local Backup View Strings -->
+    <string name="bp_local_backup_title">Device Storage Backup</string>
+    <string name="bp_local_backup_desc">Export a complete encrypted ZIP backup with media attachments to device storage or SD card.</string>
+    <string name="bp_local_last_backup_never">Never</string>
+    <string name="bp_local_last_backup_prefix">Last local backup: %1$s</string>
+    <string name="bp_local_export_btn">Export to Device…</string>
+    <string name="bp_local_import_btn">Import from Device…</string>
+    <string name="bp_local_import_confirm_title">Import Local Backup?</string>
+    <string name="bp_local_import_confirm_msg">Importing will overwrite current app data and restore attachments from the selected backup file.</string>
+    <string name="bp_cancel">Cancel</string>
+    <string name="bp_confirm">Import</string>
 </resources>
