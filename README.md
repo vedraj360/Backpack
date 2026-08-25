@@ -52,7 +52,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.vedraj360:Backpack:2.0.3")
+    implementation("com.github.vedraj360:Backpack:2.0.4")
 }
 ```
 
@@ -74,8 +74,9 @@ class MyApplication : Application() {
         val config = BackupConfig(
             database = database,
             folderName = "My App Backups",
-            encryptionEnabled = true,
-            autoBackupEnabled = true,
+            backupFileName = "myapp_backup",
+            encryptionEnabled = false,
+            autoBackupEnabled = false,
             backupIntervalHours = 24,
             includeAttachmentTypes = setOf(
                 AttachmentType.IMAGE,
@@ -92,7 +93,33 @@ class MyApplication : Application() {
 
 ---
 
-## ☁️ Google Drive Cloud Backup
+## 🎨 Plug-and-Play UI Components
+
+Backpack comes with ready-to-use Material 3 Custom Views for both Cloud & Local storage:
+
+### 1. Cloud Backup View (`BackupView`)
+Handles Google Drive account linking, status, and 1-tap backup/restore.
+
+```xml
+<com.vdx.backpack.ui.custom.BackupView
+    android:id="@+id/backupView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
+```
+
+### 2. Local Device Storage View (`LocalBackupView`)
+Dedicated card UI matching the cloud backup style for export/import to device or SD card.
+
+```xml
+<com.vdx.backpack.ui.custom.LocalBackupView
+    android:id="@+id/localBackupView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
+```
+
+---
+
+## ☁️ Google Drive Cloud Backup API
 
 ```kotlin
 // 1. Check Authentication & Sign-in
@@ -132,40 +159,39 @@ lifecycleScope.launch {
 
 ---
 
-## 📱 Local Device Storage Backup (SAF)
+## 📱 Local Device Storage Backup API (SAF)
 
 ```kotlin
 // 1. Export Backup to Local File (SAF CreateDocument)
-val createDocLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
-    if (uri != null) {
-        lifecycleScope.launch {
-            Backpack.local.export(uri).collect { result ->
-                when (result) {
-                    is LocalBackupResult.InProgress -> updateProgress(result.progress)
-                    is LocalBackupResult.Success -> showSuccess("Exported successfully!")
-                    is LocalBackupResult.Failure -> showError(result.error)
-                    else -> {}
-                }
-            }
+val suggestedName = Backpack.local.getDefaultBackupFileName() // e.g. myapp_backup_v2_20260826_031500.zip
+createDocLauncher.launch(suggestedName)
+
+// Inside Activity Result:
+lifecycleScope.launch {
+    Backpack.local.export(uri).collect { result ->
+        when (result) {
+            is LocalBackupResult.InProgress -> updateProgress(result.progress, result.message)
+            is LocalBackupResult.Success -> showSuccess("Exported successfully!")
+            is LocalBackupResult.Failure -> showError(result.error)
+            else -> {}
         }
     }
 }
 
 // 2. Import Backup from Local File (SAF OpenDocument)
-val openDocLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-    if (uri != null) {
-        lifecycleScope.launch {
-            Backpack.local.import(uri).collect { result ->
-                when (result) {
-                    is LocalBackupResult.InProgress -> updateProgress(result.progress)
-                    is LocalBackupResult.Success -> restartApp()
-                    is LocalBackupResult.ConflictDetected -> {
-                        // Resolve conflict:
-                        Backpack.local.resolveConflict(overwrite = true)
-                    }
-                    is LocalBackupResult.Failure -> showError(result.error)
-                }
+openDocLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
+
+// Inside Activity Result:
+lifecycleScope.launch {
+    Backpack.local.import(uri).collect { result ->
+        when (result) {
+            is LocalBackupResult.InProgress -> updateProgress(result.progress, result.message)
+            is LocalBackupResult.Success -> restartApp()
+            is LocalBackupResult.ConflictDetected -> {
+                // Resolve conflict:
+                Backpack.local.resolveConflict(overwrite = true)
             }
+            is LocalBackupResult.Failure -> showError(result.error)
         }
     }
 }
