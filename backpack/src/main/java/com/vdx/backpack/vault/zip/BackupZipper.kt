@@ -460,6 +460,13 @@ object BackupZipper {
         }
     }
 
+    fun generateBackupFileName(prefix: String, dbVersion: Int = 1): String {
+        val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
+        val time = sdf.format(Date())
+        val cleanPrefix = if (prefix.isNotBlank()) prefix else "backup"
+        return "${cleanPrefix}_v${dbVersion}_${time}.zip"
+    }
+
     private fun deleteRecursively(file: File) {
         if (file.isDirectory) {
             file.listFiles()?.forEach { deleteRecursively(it) }

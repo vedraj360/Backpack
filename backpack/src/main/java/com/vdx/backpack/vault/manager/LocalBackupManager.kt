@@ -16,7 +16,7 @@ import timber.log.Timber
 class LocalBackupManager(
     private val context: Context,
     private val config: VaultKitConfig,
-    private val preferences: LocalBackupPreferences
+    val preferences: LocalBackupPreferences
 ) {
 
     private var pendingImportUri: Uri? = null
