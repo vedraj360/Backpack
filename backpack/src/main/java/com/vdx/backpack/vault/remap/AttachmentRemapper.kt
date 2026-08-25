@@ -146,7 +146,7 @@ object AttachmentRemapper {
     }
 
     /**
-     * Remaps JSON arrays, JSON objects, or plain string paths containing file references.
+     * Remaps JSON arrays, JSON objects, or plain string paths containing local file references.
      * Uses backedUpFileNames when available for 100% deterministic matching without guessing.
      */
     fun remapValue(
@@ -165,20 +165,7 @@ object AttachmentRemapper {
                     return json.encodeToString(JsonElement.serializer(), modifiedElement)
                 }
             } else {
-                // Plain string path
-                val fileName = extractFileName(trimmed)
-                val isAttachment = if (backedUpFileNames != null) {
-                    backedUpFileNames.contains(fileName)
-                } else {
-                    isFilePath(trimmed)
-                }
-
-                if (isAttachment) {
-                    val newPath = joinPath(newBasePath, fileName)
-                    if (trimmed != newPath) {
-                        return newPath
-                    }
-                }
+                return remapStringIfPath(trimmed, newBasePath, backedUpFileNames)
             }
         } catch (e: Exception) {
             Timber.tag("AttachmentRemapper").w(e, "Skipping non-matching value for remapping")
@@ -187,13 +174,76 @@ object AttachmentRemapper {
         return null
     }
 
-    private fun isFilePath(value: String): Boolean {
+    /**
+     * Validates whether a given string is an actual local absolute file path or file:// URI.
+     * Rejects plain filenames ("photo.jpg"), content URIs ("content://..."), web URLs ("http..."), etc.
+     */
+    private fun isLocalFilePath(value: String): Boolean {
         val trimmed = value.trim()
         if (trimmed.isEmpty()) return false
-        // Matches typical Android paths (/data/user/..., /storage/emulated/..., /files/...)
-        val hasPathSeparators = trimmed.contains('/') || trimmed.contains('\\')
-        val startsWithPath = trimmed.startsWith("/") || trimmed.startsWith("file:/", ignoreCase = true)
-        return hasPathSeparators && startsWithPath
+
+        // Exclude content URIs, web URLs, and Android resource URIs
+        if (trimmed.startsWith("content://", ignoreCase = true) ||
+            trimmed.startsWith("http://", ignoreCase = true) ||
+            trimmed.startsWith("https://", ignoreCase = true) ||
+            trimmed.startsWith("android.resource://", ignoreCase = true)
+        ) {
+            return false
+        }
+
+        // Must start with an absolute file path separator or file scheme
+        val isAbsolute = trimmed.startsWith("/") ||
+                trimmed.startsWith("file://", ignoreCase = true) ||
+                trimmed.startsWith("file:/", ignoreCase = true)
+
+        // Must contain directory separators to be a valid path (not just a filename)
+        val pathWithoutScheme = if (trimmed.startsWith("file://", ignoreCase = true)) {
+            trimmed.substring(7)
+        } else if (trimmed.startsWith("file:/", ignoreCase = true)) {
+            trimmed.substring(5)
+        } else {
+            trimmed
+        }
+
+        val hasDirectorySeparators = pathWithoutScheme.contains('/') || pathWithoutScheme.contains('\\')
+
+        return isAbsolute && hasDirectorySeparators
+    }
+
+    private fun remapStringIfPath(
+        value: String,
+        newBasePath: String,
+        backedUpFileNames: Set<String>?
+    ): String? {
+        if (!isLocalFilePath(value)) return null
+
+        val isFileUri = value.startsWith("file://", ignoreCase = true) || value.startsWith("file:/", ignoreCase = true)
+        val rawPath = if (value.startsWith("file://", ignoreCase = true)) {
+            value.substring(7)
+        } else if (value.startsWith("file:/", ignoreCase = true)) {
+            value.substring(5)
+        } else {
+            value
+        }
+
+        val fileName = extractFileName(rawPath)
+        if (fileName.isEmpty() || fileName == rawPath) return null
+
+        val isAttachment = if (backedUpFileNames != null) {
+            backedUpFileNames.contains(fileName)
+        } else {
+            true
+        }
+
+        if (isAttachment) {
+            val newAbsolutePath = joinPath(newBasePath, fileName)
+            val finalPath = if (isFileUri) "file://$newAbsolutePath" else newAbsolutePath
+            if (value != finalPath) {
+                return finalPath
+            }
+        }
+
+        return null
     }
 
     private fun remapJsonElement(
@@ -216,26 +266,14 @@ object AttachmentRemapper {
                 val newMap = element.toMutableMap()
                 for ((key, value) in element) {
                     if (value is JsonPrimitive && value.isString) {
-                        val oldPath = value.content
-                        if (oldPath.isNotEmpty()) {
-                            val fileName = extractFileName(oldPath)
-                            val isMatch = if (backedUpFileNames != null) {
-                                backedUpFileNames.contains(fileName)
-                            } else {
-                                isFilePath(oldPath)
-                            }
-
-                            if (isMatch) {
-                                val newPath = joinPath(newBasePath, fileName)
-                                if (oldPath != newPath) {
-                                    newMap[key] = JsonPrimitive(newPath)
-                                    modified = true
-                                    continue
-                                }
-                            }
+                        val remapped = remapStringIfPath(value.content, newBasePath, backedUpFileNames)
+                        if (remapped != null) {
+                            newMap[key] = JsonPrimitive(remapped)
+                            modified = true
+                            continue
                         }
                     }
-                    
+
                     val (childElement, childModified) = remapJsonElement(value, newBasePath, backedUpFileNames)
                     if (childModified) {
                         newMap[key] = childElement
@@ -246,19 +284,9 @@ object AttachmentRemapper {
             }
             is JsonPrimitive -> {
                 if (element.isString) {
-                    val oldPath = element.content
-                    val fileName = extractFileName(oldPath)
-                    val isMatch = if (backedUpFileNames != null) {
-                        backedUpFileNames.contains(fileName)
-                    } else {
-                        isFilePath(oldPath)
-                    }
-
-                    if (isMatch) {
-                        val newPath = joinPath(newBasePath, fileName)
-                        if (oldPath != newPath) {
-                            return JsonPrimitive(newPath) to true
-                        }
+                    val remapped = remapStringIfPath(element.content, newBasePath, backedUpFileNames)
+                    if (remapped != null) {
+                        return JsonPrimitive(remapped) to true
                     }
                 }
                 element to false
