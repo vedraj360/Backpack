@@ -81,34 +81,38 @@ class BackupActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
     }
 
-    private fun setupBackupView() = with(binding.backupView) {
-        setOnSignInClickListener {
-            signInLauncher.launch(viewModel.getSignInIntent(this@BackupActivity))
+    private fun setupBackupView() {
+        with(binding.backupView) {
+            setOnSignInClickListener {
+                signInLauncher.launch(viewModel.getSignInIntent(this@BackupActivity))
+            }
+
+            setOnExportClickListener {
+                viewModel.exportBackup(this@BackupActivity)
+            }
+
+            setOnImportClickListener {
+                viewModel.importBackup(this@BackupActivity)
+            }
+
+            setOnUnlinkClickListener {
+                viewModel.unlinkAccount(this@BackupActivity)
+            }
+
+            setOnAutoBackupToggleListener { isEnabled ->
+                viewModel.toggleAutoBackup(this@BackupActivity, isEnabled)
+            }
         }
 
-        setOnExportClickListener {
-            viewModel.exportBackup(this@BackupActivity)
-        }
+        // Dedicated Local Device Storage Backup View Listeners
+        with(binding.localBackupView) {
+            setOnExportClickListener {
+                localExportLauncher.launch("app_backup_${System.currentTimeMillis()}.zip")
+            }
 
-        setOnImportClickListener {
-            viewModel.importBackup(this@BackupActivity)
-        }
-
-        setOnUnlinkClickListener {
-            viewModel.unlinkAccount(this@BackupActivity)
-        }
-
-        setOnAutoBackupToggleListener { isEnabled ->
-            viewModel.toggleAutoBackup(this@BackupActivity, isEnabled)
-        }
-
-        // Local Device Storage Backup Listeners
-        setOnLocalExportClickListener {
-            localExportLauncher.launch("app_backup_${System.currentTimeMillis()}.zip")
-        }
-
-        setOnLocalImportClickListener {
-            localImportLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
+            setOnImportClickListener {
+                localImportLauncher.launch(arrayOf("application/zip", "application/octet-stream", "*/*"))
+            }
         }
     }
 
@@ -116,8 +120,8 @@ class BackupActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
+                    // Cloud View State
                     binding.backupView.apply {
-                        // Cloud UI State Updates
                         if (state.isAuthenticated && state.accountEmail != null) {
                             showAuthenticated(state.accountEmail, state.lastBackupTime)
                         } else {
@@ -131,13 +135,15 @@ class BackupActivity : AppCompatActivity() {
                         }
 
                         setAutoBackupEnabled(state.isAutoBackupEnabled)
+                    }
 
-                        // Local UI State Updates
-                        setLastLocalBackupTime(state.lastLocalBackupTimestamp)
+                    // Dedicated Local View State
+                    binding.localBackupView.apply {
+                        updateLastBackupTime(state.lastLocalBackupTimestamp)
                         if (state.isLocalLoading) {
-                            showLocalProgress(state.localProgress, state.localProgressMessage)
+                            showProgress(state.localProgress, state.localProgressMessage)
                         } else {
-                            hideLocalProgress()
+                            hideProgress()
                         }
                     }
 
@@ -154,4 +160,4 @@ class BackupActivity : AppCompatActivity() {
             }
         }
     }
-}
+}

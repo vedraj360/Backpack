@@ -39,6 +39,12 @@
                 app:signInDescription="Sign in with Google to secure your data."
                 app:signInTitle="Cloud Backup" />
 
+            <com.vdx.backpack.ui.custom.LocalBackupView
+                android:id="@+id/localBackupView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" />
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

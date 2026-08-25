@@ -249,46 +249,6 @@ class BackupView @JvmOverloads constructor(
         binding.tvAutoBackupTime.text = text
     }
 
-    // ==================== Local Backup Helpers ====================
-
-    fun showLocalProgress(progress: Int, message: String? = null) {
-        binding.localProgressBar.isVisible = true
-        binding.localProgressBar.progress = progress
-        binding.tvLocalProgress.isVisible = true
-        binding.tvLocalProgress.text = message ?: context.getString(R.string.bp_backing_up)
-        binding.btnLocalExport.isEnabled = false
-        binding.btnLocalImport.isEnabled = false
-    }
-
-    fun hideLocalProgress() {
-        binding.localProgressBar.isVisible = false
-        binding.tvLocalProgress.isVisible = false
-        binding.btnLocalExport.isEnabled = true
-        binding.btnLocalImport.isEnabled = true
-    }
-
-    fun setLastLocalBackupTime(timestamp: Long) {
-        val formatted = if (timestamp > 0) {
-            val sdf = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-            sdf.format(Date(timestamp))
-        } else {
-            context.getString(R.string.bp_local_last_backup_never)
-        }
-        binding.tvLocalLastBackup.text = context.getString(R.string.bp_local_last_backup_prefix, formatted)
-    }
-
-    fun setOnLocalExportClickListener(listener: () -> Unit) {
-        binding.btnLocalExport.setOnClickListener { listener() }
-    }
-
-    fun setOnLocalImportClickListener(listener: () -> Unit) {
-        binding.btnLocalImport.setOnClickListener { listener() }
-    }
-
-    fun showLocalBackupCard(show: Boolean) {
-        binding.cardLocalBackup.isVisible = show
-    }
-
     // ==================== Listener Setters ====================
 
     fun setOnSignInClickListener(listener: () -> Unit) {

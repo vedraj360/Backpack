@@ -37,4 +37,15 @@
         <attr name="iconTint" format="color" />
         <attr name="primaryButtonColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="LocalBackupView">
+        <attr name="localTitle" format="string" />
+        <attr name="localDescription" format="string" />
+        <attr name="localExportButtonText" format="string" />
+        <attr name="localImportButtonText" format="string" />
+        <attr name="localLastBackupPrefix" format="string" />
+        <attr name="localCardCornerRadius" format="dimension" />
+        <attr name="localCardElevation" format="dimension" />
+        <attr name="localIconTint" format="color" />
+    </declare-styleable>
 </resources>
