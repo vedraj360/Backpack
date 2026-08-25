@@ -264,6 +264,16 @@ class BackupViewModel(
                 AppRestartHelper.triggerRestart(context)
             }
 
+            is BackupResult.ConflictDetected -> {
+                Timber.w("Attachment conflict during restore: ${result.conflictingFiles.size} files")
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Conflict: ${result.conflictingFiles.size} attachment files already exist on device."
+                    )
+                }
+            }
+
             is BackupResult.Failure -> {
                 _uiState.update {
                     it.copy(

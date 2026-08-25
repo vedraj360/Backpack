@@ -22,10 +22,24 @@
     <string name="vk_error_incompatible_db_version">This backup was created with a newer app version (Database v%1$d). Please update the app to import this backup.</string>
     <string name="vk_error_no_pending_conflict">No pending import to resolve conflict for.</string>
 
-    <!-- Backpack Legacy View Strings -->
+    <!-- Backpack View Layout Strings -->
+    <string name="bp_link_google_drive">Link your Google Drive</string>
+    <string name="bp_sign_in_desc">Keep your data safe with automatic daily backups.</string>
+    <string name="bp_sign_in_with_google">Sign in with Google</string>
+    <string name="bp_google_account">Google Account</string>
     <string name="bp_linked_to">Linked to: %1$s</string>
     <string name="bp_linked_to_newline">Linked to:\n%1$s</string>
     <string name="bp_last_backup">Last backup: %1$s</string>
     <string name="bp_last_backup_never">Last backup: Never</string>
+    <string name="bp_auto_backup_label">Automatic daily backup</string>
+    <string name="bp_unlink_account">Unlink Account</string>
     <string name="bp_backing_up">Backing up…</string>
+    <string name="bp_warning_title">Warning</string>
+    <string name="bp_warning_message">Importing a backup file will overwrite and replace all data currently held. This action cannot be undone.</string>
+    <string name="bp_export_title">Export Backup</string>
+    <string name="bp_export_desc">Save a complete backup of all your data as a backup file.</string>
+    <string name="bp_export_btn">Export Data…</string>
+    <string name="bp_import_title">Import Backup</string>
+    <string name="bp_import_desc">Restore your data from an existing backup file. This will overwrite all current data.</string>
+    <string name="bp_import_btn">Import Data…</string>
 </resources>
