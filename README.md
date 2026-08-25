@@ -52,7 +52,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.vedraj360:Backpack:2.0.1")
+    implementation("com.github.vedraj360:Backpack:2.0.2")
 }
 ```
 

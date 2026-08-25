@@ -355,9 +355,10 @@ object BackupZipper {
     /**
      * Generates a clean timestamped backup filename.
      */
-    fun generateBackupFileName(prefix: String, dbVersion: Int): String {
-        val dateStr = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        return "${prefix}_${dateStr}.zip"
+    fun generateBackupFileName(prefix: String, dbVersion: Int = 1): String {
+        val dateStr = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+        val cleanPrefix = if (prefix.isNotBlank()) prefix else "backup"
+        return "${cleanPrefix}_v${dbVersion}_${dateStr}.zip"
     }
 
     private fun zipDirectory(rootDir: File, sourceDir: File, zos: ZipOutputStream) {
@@ -458,13 +459,6 @@ object BackupZipper {
         } catch (_: Exception) {
             false
         }
-    }
-
-    fun generateBackupFileName(prefix: String, dbVersion: Int = 1): String {
-        val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
-        val time = sdf.format(Date())
-        val cleanPrefix = if (prefix.isNotBlank()) prefix else "backup"
-        return "${cleanPrefix}_v${dbVersion}_${time}.zip"
     }
 
     private fun deleteRecursively(file: File) {
