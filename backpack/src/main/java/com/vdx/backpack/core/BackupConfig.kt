@@ -9,5 +9,7 @@ data class BackupConfig(
     val autoBackupEnabled: Boolean = false,
     val backupIntervalHours: Long = 24,
     val maxBackupFiles: Int = 1,
-    val backupFileName: String = "backup"
+    val backupFileName: String = "backup",
+    val includeAttachmentTypes: Set<AttachmentType> = AttachmentType.values().toSet(),
+    val targetAttachmentColumns: Map<String, List<String>>? = null
 )

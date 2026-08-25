@@ -23,54 +23,94 @@ class BackpackManager(
     private val backupPreferences: BackupPreferences
 ) {
 
+    private var pendingCloudRestoreFileId: String? = null
+
     fun backup(context: Context): Flow<BackupResult> = flow {
         emit(BackupResult.InProgress(0))
 
+        val timestamp = System.currentTimeMillis()
+        val tempExportFile = File(context.cacheDir, "backpack_cloud_export_$timestamp.zip")
+
         try {
-            Timber.d("Starting backup...")
+            Timber.d("Starting cloud backup package...")
 
             emit(BackupResult.InProgress(10))
-            val dbFile = exportDatabase(config.database, context)
-            Timber.d("Database exported: ${dbFile.length()} bytes")
-            emit(BackupResult.InProgress(30))
+            val vaultConfig = com.vdx.backpack.vault.VaultKitConfig(
+                database = config.database,
+                encryptionEnabled = false,
+                includeAttachmentTypes = config.includeAttachmentTypes,
+                targetAttachmentColumns = config.targetAttachmentColumns
+            )
 
+            // 1. Package DB + Attachments into ZIP
+            val appVersion = try {
+                val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                packageInfo.versionName ?: ""
+            } catch (_: Exception) { "" }
+
+            var exportFailed = false
+            com.vdx.backpack.vault.zip.BackupZipper.export(
+                context,
+                vaultConfig,
+                android.net.Uri.fromFile(tempExportFile),
+                appVersion
+            ).collect { localResult ->
+                when (localResult) {
+                    is com.vdx.backpack.vault.model.LocalBackupResult.InProgress -> {
+                        emit(BackupResult.InProgress(10 + (localResult.progress * 40 / 100)))
+                    }
+                    is com.vdx.backpack.vault.model.LocalBackupResult.Failure -> {
+                        exportFailed = true
+                        throw localResult.error
+                    }
+                    is com.vdx.backpack.vault.model.LocalBackupResult.Success -> {
+                        Timber.d("Archive packaged: ${tempExportFile.length()} bytes")
+                    }
+                    else -> {}
+                }
+            }
+
+            if (exportFailed || !tempExportFile.exists()) {
+                throw Exception("Packaging backup archive failed")
+            }
+
+            // 2. Encrypt ZIP if encryption enabled
             val fileToUpload = if (config.encryptionEnabled) {
-                emit(BackupResult.InProgress(40))
-                val encryptedFile = File(context.cacheDir, "encrypted_backup.db")
-                val result = SecureEncryption.encryptFile(dbFile, encryptedFile)
+                emit(BackupResult.InProgress(55))
+                val encryptedFile = File(context.cacheDir, "encrypted_backup_$timestamp.zip")
+                val result = SecureEncryption.encryptFile(tempExportFile, encryptedFile)
                 if (result.isFailure) {
                     throw result.exceptionOrNull() ?: Exception("Encryption failed")
                 }
-                Timber.d("Database encrypted: ${encryptedFile.length()} bytes")
+                Timber.d("Archive encrypted: ${encryptedFile.length()} bytes")
                 encryptedFile
             } else {
-                dbFile
+                tempExportFile
             }
-            emit(BackupResult.InProgress(50))
 
-            emit(BackupResult.InProgress(60))
+            emit(BackupResult.InProgress(65))
             val uploadResult = storageProvider.uploadBackup(
                 fileToUpload,
                 generateBackupFileName()
             )
-            emit(BackupResult.InProgress(80))
+            emit(BackupResult.InProgress(85))
 
             uploadResult.fold(
                 onSuccess = { fileId ->
                     cleanupOldBackups()
 
-                    dbFile.delete()
+                    tempExportFile.delete()
                     if (config.encryptionEnabled) fileToUpload.delete()
 
-                    val timestamp = System.currentTimeMillis()
-                    backupPreferences.saveLastBackupTime(timestamp)
+                    val completedTimestamp = System.currentTimeMillis()
+                    backupPreferences.saveLastBackupTime(completedTimestamp)
 
                     emit(BackupResult.InProgress(100))
-                    Timber.d("Backup completed: $fileId")
-                    emit(BackupResult.Success(fileId, timestamp))
+                    Timber.d("Cloud backup completed: $fileId")
+                    emit(BackupResult.Success(fileId, completedTimestamp))
                 },
                 onFailure = { error ->
-                    dbFile.delete()
+                    tempExportFile.delete()
                     if (config.encryptionEnabled) fileToUpload.delete()
 
                     Timber.e(error, "Upload failed")
@@ -78,29 +118,38 @@ class BackpackManager(
                 }
             )
         } catch (e: Exception) {
+            tempExportFile.delete()
             Timber.e(e, "Backup exception")
             emit(BackupResult.Failure(e))
         }
     }
 
-    fun restore(context: Context, fileId: String): Flow<BackupResult> = flow {
+    fun restore(
+        context: Context,
+        fileId: String,
+        conflictPolicy: com.vdx.backpack.vault.model.ConflictPolicy = com.vdx.backpack.vault.model.ConflictPolicy.ASK_USER
+    ): Flow<BackupResult> = flow {
         emit(BackupResult.InProgress(0))
+        pendingCloudRestoreFileId = fileId
+
+        val timestamp = System.currentTimeMillis()
+        val tempDownloadedFile = File(context.cacheDir, "cloud_restore_temp_$timestamp.zip")
+        var fileToRestore: File? = null
 
         try {
-            Timber.d("Starting restore...")
+            Timber.d("Starting cloud restore for file: $fileId...")
 
             emit(BackupResult.InProgress(10))
-            val tempFile = File(context.cacheDir, "restore_temp.db")
-            val downloadResult = storageProvider.downloadBackup(fileId, tempFile)
+            val downloadResult = storageProvider.downloadBackup(fileId, tempDownloadedFile)
 
             downloadResult.fold(
                 onSuccess = { downloadedFile ->
                     Timber.d("Downloaded: ${downloadedFile.length()} bytes")
-                    emit(BackupResult.InProgress(40))
+                    emit(BackupResult.InProgress(35))
 
-                    val fileToRestore = if (config.encryptionEnabled) {
-                        emit(BackupResult.InProgress(50))
-                        val decrypted = File(context.cacheDir, "decrypted_restore.db")
+                    fileToRestore = if (config.encryptionEnabled) {
+                        emit(BackupResult.InProgress(45))
+                        val decrypted = File(context.cacheDir, "decrypted_cloud_restore_$timestamp.zip")
                         val result = SecureEncryption.decryptFile(downloadedFile, decrypted)
 
                         if (result.isFailure) {
@@ -114,27 +163,71 @@ class BackpackManager(
                     } else {
                         downloadedFile
                     }
-                    emit(BackupResult.InProgress(70))
+                    emit(BackupResult.InProgress(55))
 
-                    emit(BackupResult.InProgress(80))
-                    importDatabase(config.database, fileToRestore, context)
+                    val vaultConfig = com.vdx.backpack.vault.VaultKitConfig(
+                        database = config.database,
+                        encryptionEnabled = false,
+                        includeAttachmentTypes = config.includeAttachmentTypes,
+                        targetAttachmentColumns = config.targetAttachmentColumns
+                    )
 
-                    fileToRestore.delete()
+                    // Stream restore via BackupZipper (supports both V2 ZIP and V1 legacy raw DB)
+                    var restoreSuccess = false
+                    com.vdx.backpack.vault.zip.BackupZipper.import(
+                        context,
+                        vaultConfig,
+                        android.net.Uri.fromFile(fileToRestore),
+                        conflictPolicy
+                    ).collect { localResult ->
+                        when (localResult) {
+                            is com.vdx.backpack.vault.model.LocalBackupResult.InProgress -> {
+                                emit(BackupResult.InProgress(55 + (localResult.progress * 45 / 100), localResult.message))
+                            }
+                            is com.vdx.backpack.vault.model.LocalBackupResult.ConflictDetected -> {
+                                emit(BackupResult.ConflictDetected(localResult.conflictingFiles, fileId))
+                            }
+                            is com.vdx.backpack.vault.model.LocalBackupResult.Success -> {
+                                restoreSuccess = true
+                                pendingCloudRestoreFileId = null
+                                emit(BackupResult.InProgress(100))
+                                emit(BackupResult.Success(fileId, System.currentTimeMillis()))
+                            }
+                            is com.vdx.backpack.vault.model.LocalBackupResult.Failure -> {
+                                throw localResult.error
+                            }
+                        }
+                    }
 
-                    emit(BackupResult.InProgress(100))
-                    Timber.d("Restore completed successfully")
-                    emit(BackupResult.Success(fileId, System.currentTimeMillis()))
+                    fileToRestore?.delete()
                 },
                 onFailure = { error ->
-                    tempFile.delete()
-                    Timber.e(error, "Download failed")
+                    tempDownloadedFile.delete()
+                    Timber.e(error, "Cloud download failed")
                     emit(BackupResult.Failure(error))
                 }
             )
         } catch (e: Exception) {
-            Timber.e(e, "Restore exception")
+            tempDownloadedFile.delete()
+            fileToRestore?.delete()
+            Timber.e(e, "Cloud restore exception")
             emit(BackupResult.Failure(e))
         }
+    }
+
+    /**
+     * Resolves pending conflict after [BackupResult.ConflictDetected] for cloud restore.
+     */
+    fun resolveConflict(context: Context, overwrite: Boolean): Flow<BackupResult> {
+        val fileId = pendingCloudRestoreFileId
+        if (fileId == null) {
+            return flow {
+                emit(BackupResult.Failure(IllegalStateException(context.getString(com.vdx.backpack.R.string.vk_error_no_pending_conflict))))
+            }
+        }
+
+        val policy = if (overwrite) com.vdx.backpack.vault.model.ConflictPolicy.OVERWRITE else com.vdx.backpack.vault.model.ConflictPolicy.SKIP
+        return restore(context, fileId, policy)
     }
 
     suspend fun listAvailableBackups(): Result<List<BackupMetadata>> {

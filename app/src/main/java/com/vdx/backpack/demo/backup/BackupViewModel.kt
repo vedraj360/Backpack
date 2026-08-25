@@ -175,6 +175,16 @@ class BackupViewModel(
                 }
             }
 
+            is BackupResult.ConflictDetected -> {
+                Timber.w("Attachment conflict detected: ${result.conflictingFiles.size} files")
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Conflict: ${result.conflictingFiles.size} attachment files already exist on device."
+                    )
+                }
+            }
+
             is BackupResult.Failure -> {
                 Timber.e("Error during backup: ${result.error.localizedMessage}")
                 var errorMessage = "Backup failed: ${result.error.localizedMessage}"

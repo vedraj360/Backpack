@@ -6,6 +6,9 @@ import com.vdx.backpack.core.BackpackManager
 import com.vdx.backpack.core.BackupConfig
 import com.vdx.backpack.storage.BackupPreferences
 import com.vdx.backpack.storage.GoogleDriveProvider
+import com.vdx.backpack.vault.VaultKit
+import com.vdx.backpack.vault.VaultKitConfig
+import com.vdx.backpack.vault.manager.LocalBackupManager
 import com.vdx.backpack.worker.BackupScheduler
 
 object Backpack {
@@ -18,13 +21,26 @@ object Backpack {
 
     val scheduler = BackupScheduler()
 
-    val manager: BackpackManager
+    /**
+     * Cloud (Google Drive) Backup Manager.
+     */
+    val cloud: BackpackManager
         get() = _manager ?: throwError()
 
+    /**
+     * Backward-compatible alias for [cloud].
+     */
+    val manager: BackpackManager
+        get() = cloud
+
+    /**
+     * Local (Device Storage / SAF) Backup Manager.
+     */
+    val local: LocalBackupManager
+        get() = VaultKit.manager
 
     val preferences: BackupPreferences
         get() = _preferences ?: throwError()
-
 
     val driveProvider: GoogleDriveProvider
         get() = _driveProvider ?: throwError()
@@ -36,6 +52,15 @@ object Backpack {
         _driveProvider = GoogleDriveProvider(appContext, config.folderName)
 
         _manager = BackpackManager(config, _driveProvider!!, _preferences!!)
+
+        // Initialize VaultKit for local device storage with shared database and settings
+        val vaultConfig = VaultKitConfig(
+            database = config.database,
+            encryptionEnabled = config.encryptionEnabled,
+            includeAttachmentTypes = config.includeAttachmentTypes,
+            targetAttachmentColumns = config.targetAttachmentColumns
+        )
+        VaultKit.initialize(appContext, vaultConfig)
     }
 
     private fun throwError(): Nothing =

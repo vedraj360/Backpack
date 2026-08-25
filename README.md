@@ -1,76 +1,88 @@
 # Backpack 🎒
 
-Secure, Drop-in Google Drive Backup for Android Room Databases
+**All-In-One Backup & Restore Suite for Android (Google Drive Cloud + Local Storage)**
 
-Backpack is a production-ready Android library that encrypts, exports,
-and uploads your Room database to a private Google Drive App Folder. It
-manages SQLite WAL/SHM complexity, handles Google Identity Services
-authentication, and offers a plug-and-play UI.
+Backpack is a production-ready, drop-in Android backup framework that packages your **Room SQLite Database** and **All Media Attachments** (images, audio, videos, documents) into an encrypted, portable archive.
 
-## Features
+It supports both **Google Drive (Cloud)** and **Device Storage (SAF / Local)** with cross-device path remapping and automatic schema/conflict safety.
 
--   **AES-256 Encryption**
-    Encrypts all database files before upload.
+---
 
--   **Google Drive App Folder**
-    Stores backups in an isolated, hidden location users can't tamper
-    with.
+[![](https://jitpack.io/v/vedraj360/Backpack.svg)](https://jitpack.io/#vedraj360/Backpack)
+[![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=24)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
--   **Coroutines & Flow**
-    Fully asynchronous, modern Kotlin API.
+---
 
--   **Room-Aware Backup Engine**
-    Gracefully handles WAL, SHM, checkpointing, and safe DB closure.
+## ✨ Features
 
--   **Built-in UI**
-    Includes a `BackupView` for instant onboarding and authentication
-    handling.
+- ☁️ **Google Drive App Folder**: Uploads encrypted archives directly to the user's isolated Google Drive app folder.
+- 📱 **Local Device Storage (SAF)**: Export and Import backups via Android's Storage Access Framework file picker.
+- 🖼️ **Full Media Attachments Support**: Automatically extracts, archives, and restores images, audio notes, PDFs, videos, and custom attachments.
+- 🔄 **Cross-Device Path Remapping**: Deterministic, manifest-driven path translation so restored attachments load correctly across different Android versions and device storage roots.
+- 🛡️ **AES-256 GCM Encryption**: Secure encryption for both cloud and local archives before writing or uploading.
+- ⚡ **Atomic DB Swap & Rollback**: Safe WAL checkpointing and automatic `.bak` rollback protection in case of unexpected errors.
+- ⚠️ **Attachment Conflict Resolution**: Built-in duplicate detection (`OVERWRITE`, `SKIP`, or `ASK_USER`).
+- 🔄 **100% Backward Compatible**: Automatically detects and restores legacy v1 raw `.db` files from Google Drive without crashing.
+- 🎨 **Plug-and-Play UI**: Includes pre-built `BackupView` and modular APIs.
 
-## Used By
+---
 
-Backpack is used in production by:
-- **AutoSend** - [Get it on Google Play](https://play.google.com/store/apps/details?id=com.vdx.autosend)
+## 📲 Used In Production
 
-## Installation
+Backpack powers backup & recovery for **[AutoSend](https://play.google.com/store/apps/details?id=com.vdx.autosend)** on Google Play.
 
-### 1. Add JitPack
+---
 
-Add to `settings.gradle.kts`:
+## 📦 Installation
 
-``` kotlin
+### 1. Add JitPack to `settings.gradle.kts`
+
+```kotlin
 dependencyResolutionManagement {
     repositories {
-        ...
+        google()
+        mavenCentral()
         maven { url = uri("https://jitpack.io") }
     }
 }
 ```
 
-### 2. Add Dependency
+### 2. Add Dependency in `build.gradle.kts`
 
-``` kotlin
+```kotlin
 dependencies {
-    implementation("com.github.vedraj360:Backpack:1.0.3")
+    implementation("com.github.vedraj360:Backpack:2.0.0")
 }
 ```
 
-## Quick Start
+---
+
+## 🚀 Quick Start
 
 ### 1. Initialize Backpack
 
-``` kotlin
+In your `Application` class:
+
+```kotlin
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val database = MyDatabase.getInstance(this)
+        val database = AppDatabase.getInstance(this)
 
         val config = BackupConfig(
             database = database,
             folderName = "My App Backups",
             encryptionEnabled = true,
-            backupFileName = "user_data",
-            maxBackupFiles = 5
+            autoBackupEnabled = true,
+            backupIntervalHours = 24,
+            includeAttachmentTypes = setOf(
+                AttachmentType.IMAGE,
+                AttachmentType.AUDIO,
+                AttachmentType.VIDEO,
+                AttachmentType.DOCUMENT
+            )
         )
 
         Backpack.initialize(this, config)
@@ -78,84 +90,103 @@ class MyApplication : Application() {
 }
 ```
 
-## Optional Built-in UI
+---
 
-``` xml
-<com.vdx.backpack.ui.custom.BackupView
-    android:id="@+id/backupView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:signInTitle="Cloud Sync"
-    app:signInDescription="Sign in to keep your data safe."
-    app:showAutoBackupToggle="true" />
-```
+## ☁️ Google Drive Cloud Backup
 
-## Authentication API
-
-``` kotlin
+```kotlin
+// 1. Check Authentication & Sign-in
 val isAuth = Backpack.driveProvider.isAuthenticated()
+val signInIntent = Backpack.driveProvider.getSignInIntent(activity)
 
-val intent = Backpack.driveProvider.getSignInIntent(activity)
-
+// In Activity Result:
 Backpack.driveProvider.handleSignInResult(activity, dataIntent)
-    .onSuccess { email -> Log.d("Auth", "Signed in: $email") }
-    .onFailure { e -> Log.e("Auth", "Failed", e) }
 
-Backpack.driveProvider.signOut(activity)
-```
-
-## Backup & Restore
-
-### Backup
-
-``` kotlin
+// 2. Perform Cloud Backup (DB + Attachments)
 lifecycleScope.launch {
-    Backpack.manager.backup(context).collect { result ->
+    Backpack.cloud.backup(context).collect { result ->
         when (result) {
-            is BackupResult.InProgress -> showProgress(result.progress)
-            is BackupResult.Success -> showSuccess("Saved!")
+            is BackupResult.InProgress -> updateProgress(result.progress)
+            is BackupResult.Success -> showSuccess("Backup completed!")
+            is BackupResult.Failure -> showError(result.error)
+            is BackupResult.ConflictDetected -> {}
+        }
+    }
+}
+
+// 3. Perform Cloud Restore
+lifecycleScope.launch {
+    Backpack.cloud.restore(context, fileId).collect { result ->
+        when (result) {
+            is BackupResult.InProgress -> updateProgress(result.progress)
+            is BackupResult.Success -> restartApp()
+            is BackupResult.ConflictDetected -> {
+                // Prompt user to Overwrite or Keep Existing
+                Backpack.cloud.resolveConflict(context, overwrite = true)
+            }
             is BackupResult.Failure -> showError(result.error)
         }
     }
 }
 ```
 
-### Restore
+---
 
-``` kotlin
-val result = Backpack.manager.listAvailableBackups()
-val latestFile = result.getOrNull()?.firstOrNull()
+## 📱 Local Device Storage Backup (SAF)
 
-latestFile?.let { file ->
-    Backpack.manager.restore(context, file.fileId).collect { result ->
-        if (result is BackupResult.Success) {
-            AppRestartHelper.triggerRestart(context)
+```kotlin
+// 1. Export Backup to Local File (SAF CreateDocument)
+val createDocLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+    if (uri != null) {
+        lifecycleScope.launch {
+            Backpack.local.export(uri).collect { result ->
+                when (result) {
+                    is LocalBackupResult.InProgress -> updateProgress(result.progress)
+                    is LocalBackupResult.Success -> showSuccess("Exported successfully!")
+                    is LocalBackupResult.Failure -> showError(result.error)
+                    else -> {}
+                }
+            }
+        }
+    }
+}
+
+// 2. Import Backup from Local File (SAF OpenDocument)
+val openDocLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+    if (uri != null) {
+        lifecycleScope.launch {
+            Backpack.local.import(uri).collect { result ->
+                when (result) {
+                    is LocalBackupResult.InProgress -> updateProgress(result.progress)
+                    is LocalBackupResult.Success -> restartApp()
+                    is LocalBackupResult.ConflictDetected -> {
+                        // Resolve conflict:
+                        Backpack.local.resolveConflict(overwrite = true)
+                    }
+                    is LocalBackupResult.Failure -> showError(result.error)
+                }
+            }
         }
     }
 }
 ```
 
-## Google Cloud Setup
+---
 
-Backpack requires a Google Cloud project with an OAuth Client ID for
-Drive access.
+## 📄 License
 
-Setup guide: [Google Cloud Setup Guide](https://vedraj360.medium.com/integrating-google-drive-for-android-cloud-backups-a-complete-setup-guide-6cd8611f1905)
+```text
+Copyright 2026 Vedraj Sharma
 
-### Troubleshooting Common Auth Errors
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-*   **Google Sign-In Developer Error (Status Code 10):**
-    This usually indicates a mismatch between the SHA-1 fingerprint of the signing certificate used to build your APK/Bundle and the SHA-1 registered in the Google Cloud Console.
-    *   Make sure you have added both your **Debug SHA-1** (generated locally) and your **Release SHA-1** (from Google Play Console if using Play App Signing, or your release keystore) to your Google Cloud OAuth Client ID configuration.
-    *   Ensure the package name matches exactly.
+    http://www.apache.org/licenses/LICENSE-2.0
 
-
-## License
-
-Copyright 2025 Vedraj
-
-Licensed under the Apache License, Version 2.0. You may obtain a copy at
-http://www.apache.org/licenses/LICENSE-2.0
-
-Distributed on an "AS IS" basis, without warranties or conditions of any
-kind.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```

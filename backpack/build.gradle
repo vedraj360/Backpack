@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.serialization)
     id("maven-publish")
 }
 
@@ -90,6 +91,9 @@ dependencies {
 
     // Gson (you already have it)
     implementation(libs.gson)
+
+    // Kotlinx Serialization
+    implementation(libs.kotlinx.serialization.json)
 }
 
 afterEvaluate {
@@ -99,7 +103,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.vedraj360'
                 artifactId = 'backpack'
-                version = '1.0.3'
+                version = '2.0.0'
             }
         }
     }
