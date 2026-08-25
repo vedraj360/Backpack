@@ -56,6 +56,7 @@ object Backpack {
         // Initialize VaultKit for local device storage with shared database and settings
         val vaultConfig = VaultKitConfig(
             database = config.database,
+            backupFilePrefix = config.backupFileName,
             encryptionEnabled = config.encryptionEnabled,
             includeAttachmentTypes = config.includeAttachmentTypes,
             targetAttachmentColumns = config.targetAttachmentColumns
