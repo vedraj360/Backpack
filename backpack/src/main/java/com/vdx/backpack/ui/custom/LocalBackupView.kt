@@ -112,9 +112,11 @@ class LocalBackupView @JvmOverloads constructor(
 
     fun setOnExportClickListener(listener: () -> Unit) {
         binding.btnExportLocal.setOnClickListener { listener() }
+        binding.layoutLocalExport.setOnClickListener { listener() }
     }
 
     fun setOnImportClickListener(listener: () -> Unit) {
         binding.btnImportLocal.setOnClickListener { listener() }
+        binding.layoutLocalImport.setOnClickListener { listener() }
     }
 }

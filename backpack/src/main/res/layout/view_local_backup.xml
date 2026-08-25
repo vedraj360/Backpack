@@ -22,7 +22,7 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Header -->
+            <!-- Header Info -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -84,8 +84,8 @@
                 android:id="@+id/pbLocal"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:layout_marginTop="12dp"
+                android:layout_height="10dp"
+                android:layout_marginTop="16dp"
                 android:max="100"
                 android:progress="0"
                 android:progressTint="@color/bp_primary_teal"
@@ -96,44 +96,146 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/bp_backing_up"
                 android:textColor="@color/bp_text_secondary"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:visibility="gone" />
 
-            <!-- Buttons -->
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/bp_divider" />
+
+            <!-- Export Section (Full Width with Icon & Subtitle like Cloud View) -->
             <LinearLayout
+                android:id="@+id/layoutLocalExport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="12dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnExportLocal"
-                    style="@style/Widget.Backpack.Button.Outlined"
+                <FrameLayout
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_icon_circle">
+
+                    <ImageView
+                        android:id="@+id/ivExportLocalRow"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_export"
+                        app:tint="@color/bp_primary_cyan" />
+                </FrameLayout>
+
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="8dp"
-                    android:layout_marginEnd="6dp"
+                    android:layout_marginStart="16dp"
                     android:layout_weight="1"
-                    android:text="@string/bp_local_export_btn"
-                    android:textSize="13sp" />
+                    android:orientation="vertical">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnImportLocal"
-                    style="@style/Widget.Backpack.Button.Outlined"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="8dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    android:text="@string/bp_local_import_btn"
-                    android:textSize="13sp" />
+                    <TextView
+                        android:id="@+id/tvExportLocalTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/bp_export_title"
+                        android:textColor="@color/bp_text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvExportLocalDescription"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/bp_export_desc"
+                        android:textColor="@color/bp_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
+
+            <Button
+                android:id="@+id/btnExportLocal"
+                style="@style/Widget.Backpack.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/bp_local_export_btn"
+                android:textSize="15sp" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="16dp"
+                android:background="@color/bp_divider" />
+
+            <!-- Import Section (Full Width with Icon & Subtitle like Cloud View) -->
+            <LinearLayout
+                android:id="@+id/layoutLocalImport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="12dp">
+
+                <FrameLayout
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_icon_circle">
+
+                    <ImageView
+                        android:id="@+id/ivImportLocalRow"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_import"
+                        app:tint="@color/bp_primary_cyan" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvImportLocalTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/bp_import_title"
+                        android:textColor="@color/bp_text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvImportLocalDescription"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/bp_import_desc"
+                        android:textColor="@color/bp_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnImportLocal"
+                style="@style/Widget.Backpack.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/bp_local_import_btn"
+                android:textSize="15sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
